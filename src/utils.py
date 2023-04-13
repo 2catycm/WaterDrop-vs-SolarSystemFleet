@@ -46,7 +46,8 @@ def zeros_space(space: spaces.Space):
     elif isinstance(space, spaces.Box):
         return np.zeros(space.shape, dtype=space.dtype)
     elif isinstance(space, spaces.Discrete):
-        return np.zeros(1, dtype=np.int64)
+        # return np.zeros(1, dtype=np.int64)
+        return 0
     elif isinstance(space, spaces.MultiBinary):
         return np.zeros(space.n, dtype=bool)
     elif isinstance(space, spaces.MultiDiscrete):
