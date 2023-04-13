@@ -21,10 +21,10 @@ opportunities = len(opportunity_list)
 def opt_decision():
     # 返回给EA.py
     problem = WaterDropMarch()
-    NIND = 1000
-    # NIND = 20
-    # MAXGEN = 10
-    MAXGEN = 200
+    # NIND = 1000
+    NIND = 20
+    MAXGEN = 10
+    # MAXGEN = 200
     # MAXGEN = 500
     # 构建算法
     # algorithm = ea.soea_SGA_templet(problem,
@@ -48,9 +48,9 @@ def opt_decision():
     # print(res)
     objVs = np.min(res['ObjV'], axis=1)
     print(objVs)
-    print(f"最强的是{max(objVs)}")
+    print(f"最强的内部fitness是{max(objVs)}")
 
-    raise "还没写Vars转换为官方vector"
+    return vars2udp_var(res['Vars'], problem)
 
 def vars2udp_var(vars, problem):
     import src.representations as resp
@@ -58,7 +58,7 @@ def vars2udp_var(vars, problem):
     raw_vars = resp.vars2raw_vars(vars, problem.indices, opportunity_list)
     udp_vars = resp.raw_vars2udp_vars(raw_vars, )
     fit = np.array([udp.fitness(udp_var) for udp_var in udp_vars])
-    return udp_vars[int(fit.argmax())]
+    return udp_vars[int(fit[:, 0].argmax())]
     
 
 class WaterDropMarch(ea.Problem):  # Inherited from Problem class.

@@ -1,4 +1,4 @@
-# %%
+# 这是个子问题
 import typing
 from collections import OrderedDict
 from typing import Tuple
@@ -7,13 +7,6 @@ import gym
 from gym import spaces
 import numpy as np
 import torch
-
-
-# class GameState:
-#     def __init__(self):
-#         self.channel:int = 0
-#         self.opportunities = torch.zeros((0, 6))
-
 from src.utils import zeros_space
 
 
@@ -24,13 +17,8 @@ class WaterDropMarch(gym.Env):
                          "rgb_array"],  # Return a numpy.ndarray with shape (x, y, 3)
         "render_fps": 4}
 
-    def __init__(self, opportunity_list: np.ndarray, rows=12, channels=340, render_mode=None
+    def __init__(self, opportunity_list: np.ndarray, , render_mode=None
                  ):
-        """
-        将会初始化动作空间与状态空间，便于强化学习算法在给定的状态空间中搜索合适的动作。gym提供了spaces方法。
-        rows 是 station的数量。在这个游戏形式化中，station是水滴能够走的列。
-        channels 是 asteroids的数量。在这个游戏形式化中，asteroid是太阳系舰队的量子通信频道。
-        """
         self.opportunity_list = opportunity_list
         self.rows = rows or len(np.unique(opportunity_list[:, 1]))
         self.channels = channels or len(np.unique(opportunity_list[:, 2]))

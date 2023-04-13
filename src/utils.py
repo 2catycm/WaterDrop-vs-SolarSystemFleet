@@ -1,8 +1,12 @@
 import json
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 
 from pathlib import Path
+
+from gym import spaces
 
 this_file = Path(__file__).resolve()
 this_directory = this_file.parent
@@ -31,3 +35,19 @@ def get_opportunity_list(data):
 
 def get_stations_and_asteroids(opportunity_list: pd.DataFrame):
     return len(opportunity_list.station.unique()) , len(opportunity_list.asteroid.unique())
+
+
+def zeros_space(space: spaces.Space):
+    if isinstance(space, spaces.Dict):
+        res = OrderedDict()
+        for k in space.keys():
+            res[k] = zeros_space(space[k])
+        return res
+    elif isinstance(space, spaces.Box):
+        return np.zeros(space.shape, dtype=space.dtype)
+    elif isinstance(space, spaces.Discrete):
+        return np.zeros(1, dtype=np.int64)
+    elif isinstance(space, spaces.MultiBinary):
+        return np.zeros(space.n, dtype=bool)
+    elif isinstance(space, spaces.MultiDiscrete):
+        return np.zeros(space.nvec, dtype=np.int64)

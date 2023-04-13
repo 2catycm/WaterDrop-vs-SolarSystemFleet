@@ -1,1 +1,2 @@
-{'success': True, 'stopMsg': 'The algotirhm stepped because it exceeded the trapped count limit.', 'Vars': array([[453, 314,  46,  92, 975, 573, 801, 390, 140,  76,  18, 217]]), 'ObjV': array([[3.35523541]]), 'CV': array([[0.]]), 'executeTime': 1076.5291244983673, 'nfev': 107000, 'startTime': '2023-04-13 15h-05m-28s', 'endTime': '2023-04-13 15h-23m-25s'}
+{'success': True, 'stopMsg': 'The algotirhm stepped because it exceeded the generation limit.', 'Vars': array([[   0,   98,  193,  289,  386,  482,  602,  677,  767,  862,  969,
+        1073]]), 'ObjV': array([[0.81271186]]), 'CV': array([[0.]]), 'executeTime': 1.970522165298462, 'nfev': 200, 'startTime': '2023-04-14 04h-37m-48s', 'endTime': '2023-04-14 04h-37m-51s'}
