@@ -23,7 +23,8 @@ def opt_decision():
     problem = WaterDropMarch()
     NIND = 1000
     # NIND = 20
-    MAXGEN = 10
+    # MAXGEN = 10
+    MAXGEN = 200
     # MAXGEN = 500
     # 构建算法
     # algorithm = ea.soea_SGA_templet(problem,

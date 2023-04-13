@@ -1,1 +1,1 @@
-{'Algorithm Name': 'SGA', 'Algorithm MAXGEN': 10, 'Algorithm MAXTIME': None, 'Algorithm MAXEVALS': None, 'Algorithm trappedValue': 1e-06, 'Algorithm maxTrappedCount': 100}
+{'Algorithm Name': 'DE/target-to-best/1/bin', 'Algorithm MAXGEN': 200, 'Algorithm MAXTIME': None, 'Algorithm MAXEVALS': None, 'Algorithm trappedValue': 1e-06, 'Algorithm maxTrappedCount': 100}

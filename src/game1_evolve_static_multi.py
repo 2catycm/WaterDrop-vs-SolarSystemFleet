@@ -26,7 +26,7 @@ def opt_decision():
     MAXGEN = 10
     # MAXGEN = 500
     # 构建算法
-    algorithm = ea.moea_NSGA3_templet(problem,
+    algorithm = ea.moea_psy_RVEA_RES_templet(problem,
                                       ea.Population(Encoding='RI', NIND=NIND),  # Set 100 individuals.
                                       MAXGEN=MAXGEN,  # Set the max iteration number.
                                       logTras=1,  # Set the frequency of logging. If it is zero, it would not log.

@@ -3,6 +3,20 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
+        <entry key="\referenceObjV\SpocDeliveryScheduling_M1_D704.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="\referenceObjV\WaterDropMarch_M12_D12.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\result_game1_evolve_static_multi.py\optPop\CV.csv">
           <value>
             <Attribute>
