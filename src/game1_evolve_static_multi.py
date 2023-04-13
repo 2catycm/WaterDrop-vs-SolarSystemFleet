@@ -9,6 +9,7 @@ import src.utils as utils
 import geatpy as ea
 from spoc_delivery_scheduling_evaluate_code import trappist_schedule
 import joblib
+
 udp = trappist_schedule()
 
 data = utils.get_data()
@@ -20,9 +21,10 @@ opportunities = len(opportunity_list)
 def opt_decision():
     # 返回给EA.py
     problem = WaterDropMarch()
-    NIND = 1000
-    # MAXGEN = 10
-    MAXGEN = 500
+    # NIND = 1000
+    NIND = 20
+    MAXGEN = 10
+    # MAXGEN = 500
     # 构建算法
     algorithm = ea.moea_NSGA3_templet(problem,
                                       ea.Population(Encoding='RI', NIND=NIND),  # Set 100 individuals.
@@ -32,13 +34,20 @@ def opt_decision():
                                       maxTrappedCount=100  # 进化停滞计数器最大上限值。
                                       )
     # 求解
+    # res = ea.optimize(algorithm,
+    #                   seed=128, verbose=True, drawing=1, outputMsg=True, drawLog=True, saveFlag=True,
+    #                   dirName=f'result_{Path(__file__).name}')
+
     res = ea.optimize(algorithm,
                       seed=128, verbose=True, drawing=1, outputMsg=True, drawLog=True, saveFlag=True,
-                      dirName=f'result_{Path(__file__).name}')
+                      dirName=f'result_{Path(__file__).name}',
+                      prophet=np.array([
+                          # [*i/stations for i in range(stations)],
+                          np.round(problem.ub * np.arange(stations)/stations).astype(int),
+                          np.round(problem.ub * (stations-1-np.arange(stations))/stations).astype(int),
+                           ]
+                      ))
     # print(res)
-    # return res["Vars"][0]
-    # print(res['ObjV'])
-    # joblib.save(f'result_{Path(__file__).name}/Vars', res['Vars'])
     objVs = np.min(res['ObjV'], axis=1)
     print(objVs)
     print(f"最强的是{max(objVs)}")
@@ -50,7 +59,7 @@ class WaterDropMarch(ea.Problem):  # Inherited from Problem class.
     def __init__(self):
         M = stations  # M is the number of objects.
         name = 'WaterDropMarch'  # Problem's name.
-        maxormins = [0] * M  # 0 表示最大化
+        maxormins = [-1] * M  # -1 表示最大化
 
         self.station_groups = opportunity_list.groupby('station')
         # Dim = stations + opportunities  # 决策维度。 12个切换时机+13920个让星决策(实际上不应该那么多)
@@ -72,9 +81,10 @@ class WaterDropMarch(ea.Problem):  # Inherited from Problem class.
         self.indices = self.station_groups.indices
 
     def calReferObjV(self):  # Calculate the theoretic global optimal solution here.
-        uniformPoint, ans = ea.crtup(self.M, 10000)  # create 10000 uniform points.
-        realBestObjV = uniformPoint / 2
-        return realBestObjV
+        # uniformPoint, ans = ea.crtup(self.M, 10000)  # create 10000 uniform points.
+        # realBestObjV = uniformPoint / 2
+        # return realBestObjV
+        return np.ones(self.M) * 9.594
 
     def evalVars(self, Vars):
         # shift_positions = Vars[:, :stations]
@@ -88,7 +98,8 @@ class WaterDropMarch(ea.Problem):  # Inherited from Problem class.
     # @ea.Problem.single
     def evalSingleVars(self, svar):
         shift_positions = svar[:stations]  # 这个只是station内部的位置
-        shift_positions = [self.indices[station_minus_one + 1][position] for station_minus_one, position in enumerate(shift_positions)]
+        shift_positions = [self.indices[station_minus_one + 1][position] for station_minus_one, position in
+                           enumerate(shift_positions)]
 
         station_order = np.argsort(shift_positions)
         obj_v = np.zeros(self.M)
