@@ -21,11 +21,11 @@ def get_opportunity_list(data):
     opportunities = []
     for asteroid in data.keys():
         for station in data[asteroid].keys():
-            for op in data[asteroid][station]:
+            for oppo_id_minus_one, op in enumerate(data[asteroid][station]):
                 # print(op)
-                opportunities.append([op[0], int(station), int(asteroid), *op[1:]])
+                opportunities.append([op[0], int(station), int(asteroid), *op[1:], oppo_id_minus_one+1])
     opportunities.sort(key=lambda x: x[0])
-    df = pd.DataFrame(opportunities, columns=["time", "station", "asteroid", "A", "B", "C"])
+    df = pd.DataFrame(opportunities, columns=["time", "station", "asteroid", "A", "B", "C", "oppo_id"])
     return df
 
 

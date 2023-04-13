@@ -12,6 +12,12 @@ import json
 # --------------------------------------
 import matplotlib.pyplot as plt
 
+from pathlib import Path
+
+import numpy as np
+this_file = Path(__file__).resolve()
+this_directory = this_file.parent
+project_directory = this_directory
 
 class trappist_schedule:
     """
@@ -30,7 +36,8 @@ class trappist_schedule:
 
     def __init__(
         self,
-        path=os.path.join(".", "data", "spoc", "scheduling", "candidates.txt"),
+        # path=os.path.join(".", "data", "spoc", "scheduling", "candidates.txt"),
+        path=project_directory/ "data"/"spoc"/"scheduling"/"candidates.txt", 
         n_stations=12,
         start_time=0.0,
         end_time=80.0,

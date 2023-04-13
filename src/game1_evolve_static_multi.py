@@ -110,9 +110,23 @@ class WaterDropMarch(ea.Problem):  # Inherited from Problem class.
             right = shift_positions[station_order[i + 1]] if i < stations - 1 else opportunities
             all_ops = opportunity_list.iloc[left:right]
             all_ops = all_ops[all_ops.station == station]  # 只有这条船有关的才有用
-            all_ops = all_ops
+            right_time =opportunity_list.time.iloc[right] if i < stations - 1 else 81.1
+            all_ops = all_ops[all_ops.time < right_time-1] # 不能僵硬切换
 
-            all_ops = all_ops[asteroids_used[all_ops.asteroid] == 0]  # 没有量子通信逃逸的飞船
-            obj_v[station_minus_one] = all_ops[['A', 'B', 'C']].sum(axis=0).min()  # 增加奖赏
-            asteroids_used[all_ops.asteroid] = 1  # 设置为使用过了
+            # all_ops = all_ops[asteroids_used[all_ops.asteroid] == 0]  # 没有量子通信逃逸的飞船
+            # obj_v[station_minus_one] = all_ops[['A', 'B', 'C']].sum(axis=0).min()  # 增加奖赏
+            # asteroids_used[all_ops.asteroid] = 1  # 设置为使用过了
+            ABC = np.zeros(3)
+            for op in all_ops.itertuples():
+                # 这里不能批量操作，因为量子逃逸可能随时发生，同一个station也不能用两次。
+                if asteroids_used[op.asteroid] == 1:
+                    continue
+                ABC[0]+=op.A
+                ABC[1]+=op.B
+                ABC[2]+=op.C
+                # 为下一次筛选增加条件
+                asteroids_used[op.asteroid] = 1
+                
+            obj_v[station_minus_one] = ABC.min()
+            
         return obj_v

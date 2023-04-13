@@ -52,6 +52,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\result_game1_evolve_static_single.py\optPop\Phen.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
