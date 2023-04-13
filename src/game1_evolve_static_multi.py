@@ -7,10 +7,10 @@ from pathlib import Path
 
 import src.utils as utils
 import geatpy as ea
-from spoc_delivery_scheduling_evaluate_code import trappist_schedule
+# from spoc_delivery_scheduling_evaluate_code import trappist_schedule
 import joblib
 
-udp = trappist_schedule()
+# udp = trappist_schedule()
 
 data = utils.get_data()
 opportunity_list = utils.get_opportunity_list(data)
@@ -21,12 +21,12 @@ opportunities = len(opportunity_list)
 def opt_decision():
     # 返回给EA.py
     problem = WaterDropMarch()
-    # NIND = 1000
-    NIND = 20
+    NIND = 1000
+    # NIND = 20
     MAXGEN = 10
     # MAXGEN = 500
     # 构建算法
-    algorithm = ea.moea_psy_RVEA_RES_templet(problem,
+    algorithm = ea.moea_NSGA3_DE_templet(problem,
                                       ea.Population(Encoding='RI', NIND=NIND),  # Set 100 individuals.
                                       MAXGEN=MAXGEN,  # Set the max iteration number.
                                       logTras=1,  # Set the frequency of logging. If it is zero, it would not log.
@@ -80,11 +80,11 @@ class WaterDropMarch(ea.Problem):  # Inherited from Problem class.
         ea.Problem.__init__(self, name, M, maxormins, Dim, varTypes, lb, ub, lbin, ubin)
         self.indices = self.station_groups.indices
 
-    def calReferObjV(self):  # Calculate the theoretic global optimal solution here.
-        # uniformPoint, ans = ea.crtup(self.M, 10000)  # create 10000 uniform points.
-        # realBestObjV = uniformPoint / 2
-        # return realBestObjV
-        return np.ones(self.M) * 9.594
+    # def calReferObjV(self):  # Calculate the theoretic global optimal solution here.
+    #     # uniformPoint, ans = ea.crtup(self.M, 10000)  # create 10000 uniform points.
+    #     # realBestObjV = uniformPoint / 2
+    #     # return realBestObjV
+    #     return np.ones((100, self.M)) * 9.594
 
     def evalVars(self, Vars):
         # shift_positions = Vars[:, :stations]
