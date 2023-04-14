@@ -52,3 +52,28 @@ def zeros_space(space: spaces.Space):
         return np.zeros(space.n, dtype=bool)
     elif isinstance(space, spaces.MultiDiscrete):
         return np.zeros(space.nvec, dtype=np.int64)
+
+def dict_into_single_array(d:OrderedDict):
+    res = []
+    for k, v in d.items():
+        if isinstance(v, OrderedDict):
+            res.append(dict_into_single_array(v))
+        else:
+            res.append(v)
+    return np.hstack(res)
+
+# def space_dict_into_single_array(s:spaces.Space):
+#     if isinstance(space, spaces.Dict):
+#         res = OrderedDict()
+#         for k in space.keys():
+#             res[k] = zeros_space(space[k])
+#         return res
+#     elif isinstance(space, spaces.Box):
+#         return np.zeros(space.shape, dtype=space.dtype)
+#     elif isinstance(space, spaces.Discrete):
+#         # return np.zeros(1, dtype=np.int64)
+#         return 0
+#     elif isinstance(space, spaces.MultiBinary):
+#         return np.zeros(space.n, dtype=bool)
+#     elif isinstance(space, spaces.MultiDiscrete):
+#         return np.zeros(space.nvec, dtype=np.int64)
