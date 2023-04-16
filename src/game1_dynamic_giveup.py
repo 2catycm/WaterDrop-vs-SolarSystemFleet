@@ -70,6 +70,9 @@ class WaterDropMarch(gym.Env):
         self.window = None
         self.clock = None
 
+        # 返回值
+        self.do_give_up_stars = np.zeros((1, self.opportunities))
+
     def normalized(self, state):
         state['position'] = int(state['position'])
         state['banned_channels'] = np.array(state['banned_channels'], dtype=int).reshape((self.channels + 1,))
@@ -109,6 +112,7 @@ class WaterDropMarch(gym.Env):
         state['current_row'] = self.star_table.iloc[0].station
         self.first_time = True
         self.state = self.normalized(state)
+        self.do_give_up_stars = np.zeros((1, self.opportunities))
         return self.state
 
     def step(self, action) -> Tuple[typing.OrderedDict, float, bool, dict]:
@@ -125,6 +129,7 @@ class WaterDropMarch(gym.Env):
             self.state['current_ABC'] = new_ABC
             self.state['banned_channels'][int(star.asteroid)] = 1
         elif action == 1 or is_banned:
+            self.do_give_up_stars[0, self.star_table.index[position]] = True
             # 让星
             reward += 0  # 短期没有收益
         else:
@@ -206,105 +211,101 @@ class WaterDropMarch(gym.Env):
         return None
 
 
-# %%
-shift_positions = np.array(
-    [4.530000000000000000e+02, 3.140000000000000000e+02, 4.600000000000000000e+01, 9.200000000000000000e+01,
-     9.750000000000000000e+02, 5.730000000000000000e+02, 8.010000000000000000e+02, 3.900000000000000000e+02,
-     1.400000000000000000e+02, 7.600000000000000000e+01, 1.800000000000000000e+01, 2.170000000000000000e+02
-     ])
-import src.utils as utils
 
-data = utils.get_data()
-opportunity_list = utils.get_opportunity_list(data)
-stations, asteroids = utils.get_stations_and_asteroids(opportunity_list)
-opportunities = len(opportunity_list)
-# %%
-env = WaterDropMarch(opportunity_list, shift_positions)
-env.state
-env.stars
-# env.step(0)
 # %%
 import random
-def test_sample_rewards():
-    rewards = 0
-    observation = env.reset()
-    old_row = observation['current_row']
-    remains = 12
-    for _ in range(100000):
-        # action = env.action_space.sample()
-        # 抢星概率 = 0.2
-        # 抢星概率 = 1/12 # 相当于 slotted aloha，12个nodes在340个slot上发送信号？ 
-        avails = (1-observation['banned_channels']).sum()
-        # 抢星概率 = 1/remains
-        抢星概率 = 1/avails
-        action = random.random()<抢星概率  
-        # action = 0
-        observation, reward, done, info = env.real_reward_step(action)
-        if observation['current_row']!=old_row: 
-            old_row = observation['current_row']
-            # remains-=1
-            remains-=0.01
-            # remains-=0
-        rewards += reward
-        env.render()
-        if done:
-            # observation, info = env.reset()
-            break
-    env.close()
+
+from tqdm import tqdm, trange
+
+
+def best_sample_rewards(env, samples=1000, log=False):
+    best_rewards, best_do_give_up_stars = 0, env.do_give_up_stars
+    pbar = trange(samples) if log else range(samples)
+    for sample in pbar:
+        rewards = 0
+        observation = env.reset()
+        old_row = observation['current_row']
+        remains = 12
+        # actions = np.zeros(env.stars)
+        for i in range(100000):
+            # action = env.action_space.sample()
+            # 抢星概率 = 0.2
+            # 抢星概率 = 1/12 # 相当于 slotted aloha，12个nodes在340个slot上发送信号？
+            avails = (1 - observation['banned_channels']).sum()
+            # 抢星概率 = 1/remains
+            抢星概率 = 1 / avails
+            action = random.random() < 抢星概率
+            # action = 0
+            observation, reward, done, info = env.real_reward_step(action)
+            if observation['current_row'] != old_row:
+                old_row = observation['current_row']
+                # remains-=1
+                remains -= 0.01
+                # remains-=0
+            rewards += reward
+            env.render()
+            if done:
+                # observation, info = env.reset()
+                break
+        if log:
+            pbar.set_description(f"强化学习更好的解中，current rewards{rewards}, best rewards{best_rewards}")
+        if rewards > best_rewards:
+            best_rewards = rewards
+            best_do_give_up_stars = env.do_give_up_stars
     # print(rewards)
-    return rewards
-max([test_sample_rewards() for i in range(1000)]) #           
-# max([test_sample_rewards() for i in range(100)]) # 4.0646; 4.23; 4.3765           
-# max([test_sample_rewards() for i in range(10)]) # 3.9966; 4.16
-# %%
-# from gym.wrappers import FlattenObservation
-# FlattenObservation(env).state
-# import gym.ObservationWrapper
-# class Wrapper(gym.ObservationWrapper):
-
-#     def __init__(self, env: gym.Env):
-#         super().__init__(env)
-#         x = dict_into_single_array(env.observation_space.sample())
-#         self.observation_space = spaces.Box(low=0, high=np.inf, shape=(len(x), ))
-
-#     def observation(self, observation):
-
-#         return dict_into_single_array(observation)
-
-# %%
-from stable_baselines3 import A2C, TD3, DQN
-from stable_baselines3 import a2c, td3, dqn
-
-# model = A2C("MlpPolicy", Wrapper(env), verbose=1)
-# model = A2C(a2c.MultiInputPolicy, env, verbose=1, learning_rate=1e-7)
-model = A2C(a2c.MultiInputPolicy, env, verbose=1)
-# model = TD3(dqn.MultiInputPolicy, env, verbose=1, learning_rate=1e-7)
-# model.learn(total_timesteps=100_000)
-# model.learn(total_timesteps=10_000)
-model.learn(total_timesteps=10_00)
-# model.learn(total_timesteps=10_0)
-
-# %%
-# vec_env = model.get_env()
-vec_env = env
-obs = vec_env.reset()
-rewards = 0
-actions = []
-for i in range(100000):
-    # action, _state = model.predict(obs, deterministic=True)
-    action, _state = model.predict(obs, deterministic=False)
-    obs, reward, done, info = vec_env.real_reward_step(action)
-    actions.append(action)
-    vec_env.render()
-    rewards += reward
-    if done:
-        break
-    # vec_env.render(mode="human")
-print(rewards)
-print(actions)
-# %%
-obs = env.reset()
-obs = dict_into_single_array(obs)
-len(obs)
+    return best_rewards, best_do_give_up_stars
+# max([test_sample_rewards(env) for i in range(1000)], key=0) #
+# # max([test_sample_rewards() for i in range(100)]) # 4.0646; 4.23; 4.3765
+# # max([test_sample_rewards() for i in range(10)]) # 3.9966; 4.16
+# # %%
+# # from gym.wrappers import FlattenObservation
+# # FlattenObservation(env).state
+# # import gym.ObservationWrapper
+# # class Wrapper(gym.ObservationWrapper):
+#
+# #     def __init__(self, env: gym.Env):
+# #         super().__init__(env)
+# #         x = dict_into_single_array(env.observation_space.sample())
+# #         self.observation_space = spaces.Box(low=0, high=np.inf, shape=(len(x), ))
+#
+# #     def observation(self, observation):
+#
+# #         return dict_into_single_array(observation)
+#
+# # %%
+# from stable_baselines3 import A2C, TD3, DQN
+# from stable_baselines3 import a2c, td3, dqn
+#
+# # model = A2C("MlpPolicy", Wrapper(env), verbose=1)
+# # model = A2C(a2c.MultiInputPolicy, env, verbose=1, learning_rate=1e-7)
+# model = A2C(a2c.MultiInputPolicy, env, verbose=1)
+# # model = TD3(dqn.MultiInputPolicy, env, verbose=1, learning_rate=1e-7)
+# # model.learn(total_timesteps=100_000)
+# # model.learn(total_timesteps=10_000)
+# model.learn(total_timesteps=10_00)
+# # model.learn(total_timesteps=10_0)
+#
+# # %%
+# # vec_env = model.get_env()
+# vec_env = env
+# obs = vec_env.reset()
+# rewards = 0
+# actions = []
+# for i in range(100000):
+#     # action, _state = model.predict(obs, deterministic=True)
+#     action, _state = model.predict(obs, deterministic=False)
+#     obs, reward, done, info = vec_env.real_reward_step(action)
+#     actions.append(action)
+#     vec_env.render()
+#     rewards += reward
+#     if done:
+#         break
+#     # vec_env.render(mode="human")
+# print(rewards)
+# print(actions)
+# # %%
+# obs = env.reset()
+# obs = dict_into_single_array(obs)
+# len(obs)
 
 # %%

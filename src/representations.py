@@ -1,7 +1,6 @@
 # %%
 import numpy as np
 
-
 def make_vars(shift_positions, do_give_up_stars=None, opportunities=13920):
     if do_give_up_stars is None:
         do_give_up_stars = np.zeros((shift_positions.shape[0], opportunities))

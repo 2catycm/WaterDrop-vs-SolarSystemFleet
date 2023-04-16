@@ -1,5 +1,6 @@
 # %%
 import typing
+from random import random, randint
 
 import numpy as np
 import torch
@@ -18,13 +19,20 @@ stations, asteroids = utils.get_stations_and_asteroids(opportunity_list)
 opportunities = len(opportunity_list)
 
 
-def opt_decision():
+def opt_decision(dynamic=False, log=False):
     # 返回给EA.py
     problem = WaterDropMarch()
-    NIND = 1000
+    # 软件测试用的超小参数
     # NIND = 20
-    MAXGEN = 10
+    # MAXGEN = 10
+    # 算法对比使用的参数
+    NIND = 100
+    MAXGEN = 20
+    # 基本参数
+    # NIND = 1000
+    # MAXGEN = 200
     # MAXGEN = 500
+
     # 构建算法
     algorithm = ea.moea_NSGA3_DE_templet(problem,
                                       ea.Population(Encoding='RI', NIND=NIND),  # Set 100 individuals.
@@ -39,20 +47,20 @@ def opt_decision():
     #                   dirName=f'result_{Path(__file__).name}')
 
     res = ea.optimize(algorithm,
-                      seed=128, verbose=True, drawing=1, outputMsg=True, drawLog=True, saveFlag=True,
+                      seed=randint(1, 100), verbose=log, drawing=log, outputMsg=log, drawLog=log, saveFlag=log,
                       dirName=f'result_{Path(__file__).name}',
-                      prophet=np.array([
-                          # [*i/stations for i in range(stations)],
-                          np.round(problem.ub * np.arange(stations)/stations).astype(int),
-                          np.round(problem.ub * (stations-1-np.arange(stations))/stations).astype(int),
-                           ]
-                      ))
+                      # prophet=np.array([
+                      #     np.round(problem.ub * np.arange(stations)/stations).astype(int),
+                      #     np.round(problem.ub * (stations-1-np.arange(stations))/stations).astype(int),
+                      #      ]
+                      # )
+                      )
     # print(res)
     objVs = np.min(res['ObjV'], axis=1)
     print(objVs)
     print(f"最强的是{max(objVs)}")
 
-    raise "还没写Vars转换为官方vector"
+    return None, max(objVs)
 
 
 class WaterDropMarch(ea.Problem):  # Inherited from Problem class.

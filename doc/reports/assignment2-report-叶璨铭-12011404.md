@@ -55,15 +55,16 @@ MRDTCS的具体定义如下。
   - 问题实例I定义为$I=\set{(t_i,s_i,r_i, v_i)}_{i=1}^{N}$
   - 其中
     - $t_i \in [0, 80] \cap \R$是采集机会发生的时间点（资源的采集时间忽略不计）
-    - $s_i\in [1,12] \cap \Z $是采集站编号，$r_i\in[1,340]\cap \Z $是资源点的编号。
+    - $s_i\in St, St=[1,12] \cap \Z $是采集站编号，$r_i\in Re,Re= [1,340]\cap \Z $是资源点的编号。
     - $v_i\in \R^+$是资源的具体数值，数值越大越好。
     - I中的一条record代表了带有$v_i$的资源$r_i$在$t_i$时间点可以被采集站$s_i$采集。
 - 问题解表征（Problem Solution Representation）
-  - 问题的解x分为两部分，采集站时间窗口(Time Windows)和资源点实际采集机会分配(Opportunity Delivery), $x = (T, D)$
+  - 问题的解x分为两部分，采集站时间窗口(Time Windows)和资源点实际采集机会分配(Opportunity Deliveries), $x = (T, D)$
   - 时间窗口T定义为$T = [T_{1i}, T_{1f}, ..., T_{12i}, T_{12f}]$, 其中$T_{ji}$和$T_{jf}$分别表示编号为j的采集站的开始时间和结束时间。
-  - 资源点实际采集机会分配D定义为
+  - 资源点实际采集机会分配D定义为$D = \set{(t_i, s_i, i, v_i)}_{i=1}^{340}\subseteq I$。
 - 问题优化目标（Optimization Objective）
-  - 
+  - $V_i =\sum_{\set{(t_j, s_j, j, v_j)| sj=i}\subseteq D}(v_j) , i\in[1,12] \cap \Z$
+  - $V = \min_i(V_i)$
 
 SpOC比赛中，还增加了一些额外的约束。
 
@@ -193,9 +194,22 @@ MRDTCS的一个重要难点在于
 
 
 
+
+
 #### 材料均匀假设
 
 
+
+
+
+Slotted ALOHA：
+$$
+p = P(station\ tries\ obtain\ aster)\\
+Q = Np(1-p)^{N-1}\\
+p = \arg \max_p(Q) = \frac{1}{N}\\
+\lim_{N\to \infty} \max_p Q= \frac{1}{e}
+$$
+$$
 
 
 
